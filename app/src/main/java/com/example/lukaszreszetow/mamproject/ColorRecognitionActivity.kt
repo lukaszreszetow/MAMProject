@@ -15,10 +15,11 @@ import org.opencv.core.*
 import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.BaseLoaderCallback
+import android.util.DisplayMetrics
 
 
-
-class ColorRecognitionActivity : AppCompatActivity(), View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
+class ColorRecognitionActivity : AppCompatActivity(), View.OnTouchListener,
+    CameraBridgeViewBase.CvCameraViewListener2 {
 
     private val TAG = "CameraRecognitionActivity"
 
@@ -43,6 +44,9 @@ class ColorRecognitionActivity : AppCompatActivity(), View.OnTouchListener, Came
     private var mBlobColorHsv = Scalar(255.0)
     private var mDetector = ColorDetector()
     private var CONTOUR_COLOR = Scalar(255.0, 0.0, 0.0, 255.0)
+    private var screenX: Float = 0f
+    private var screenY: Float = 0f
+    private var mToast: Toast? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +72,10 @@ class ColorRecognitionActivity : AppCompatActivity(), View.OnTouchListener, Came
             val contours = mDetector.contours
             Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR)
         }
-
+        if (screenX == 0f) {
+            getScreenSize()
+        }
+        isTheColorWhite()
         return mRgba
     }
 
@@ -114,13 +121,11 @@ class ColorRecognitionActivity : AppCompatActivity(), View.OnTouchListener, Came
 
         mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv)
 
-        Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.`val`[0] + ", " + mBlobColorRgba.`val`[1] +
-                ", " + mBlobColorRgba.`val`[2] + ", " + mBlobColorRgba.`val`[3] + ")")
-
-        if(mBlobColorRgba.`val`[0] >=200 && mBlobColorRgba.`val`[1] >=200 && mBlobColorRgba.`val`[2] >=200){
-            Toast.makeText(this, "Wykryto bialy kolor, ekran zamkniety !", Toast.LENGTH_LONG).show()
-            finish()
-        }
+        Log.i(
+            TAG,
+            "Touched rgba color: (" + mBlobColorRgba.`val`[0] + ", " + mBlobColorRgba.`val`[1] +
+                    ", " + mBlobColorRgba.`val`[2] + ", " + mBlobColorRgba.`val`[3] + ")"
+        )
 
         mDetector.setHsvColor(mBlobColorHsv)
 
@@ -132,10 +137,60 @@ class ColorRecognitionActivity : AppCompatActivity(), View.OnTouchListener, Came
         return false // don't need subsequent touch events
     }
 
+    private fun isTheColorWhite() {
+        val region = Rect(screenX.toInt(), screenY.toInt(), 10, 10)
+        val regionRgba = mRgba.submat(region)
+
+
+        val regionHSV = Mat()
+        Imgproc.cvtColor(regionRgba, regionHSV, Imgproc.COLOR_RGB2HSV_FULL)
+
+
+        // Calculate average color of touched region
+        val calculateColorHSV = Core.sumElems(regionHSV)
+        val pointCount = region.width * region.height
+        for (i in 0 until calculateColorHSV.`val`.size)
+            calculateColorHSV.`val`[i] = (calculateColorHSV.`val`[i] / pointCount)
+
+        val calculateColorRGBA = converScalarHsv2Rgba(calculateColorHSV)
+
+        Log.i(
+            TAG,
+            "Detected rgba color: (" + calculateColorRGBA.`val`[0] + ", " + calculateColorRGBA.`val`[1] +
+                    ", " + calculateColorRGBA.`val`[2] + ", " + calculateColorRGBA.`val`[3] + ")"
+        )
+
+        if (calculateColorRGBA.`val`[0] >= 200 && calculateColorRGBA.`val`[1] >= 200 && calculateColorRGBA.`val`[2] >= 200) {
+            runOnUiThread {
+                Toast.makeText(
+                    this@ColorRecognitionActivity,
+                    "Wykryto bialy kolor, zamykanie okna",
+                    Toast.LENGTH_LONG
+                ).show()
+                finish()
+            }
+        }
+    }
+
     public override fun onPause() {
         super.onPause()
         if (cameraView != null)
             cameraView.disableView()
+    }
+
+    private fun getScreenSize() {
+        val metrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(metrics)
+
+        val height = metrics.heightPixels
+        val width = metrics.widthPixels
+
+        screenY = dpFromPx(height.toFloat())
+        screenX = dpFromPx(width.toFloat())
+    }
+
+    private fun dpFromPx(px: Float): Float {
+        return px / resources.displayMetrics.density
     }
 
     public override fun onResume() {

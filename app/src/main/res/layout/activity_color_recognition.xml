@@ -17,9 +17,20 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:textSize="20sp"
-        android:text="Kliknij na biały kolor aby wyłączyć ekran!"
+        android:gravity="center"
+        android:text="Najedz na biały kolor czerwonym kwadracikiem aby wyłączyć ekran!"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <View
+        android:id="@+id/colorRecognitionPointView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:background="@color/colorAccent"
+        android:layout_width="10dp"
+        android:layout_height="10dp"/>
 
     <TextView
         android:layout_marginBottom="20dp"
