@@ -46,13 +46,12 @@
             android:text="Color recognition"/>
 
         <Button
-
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:id="@+id/nastepne2BT"
+            android:id="@+id/mapBT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""/>
+            android:text="Map"/>
 
         <Button
 

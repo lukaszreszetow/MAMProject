@@ -32,27 +32,56 @@ class MainActivity : AppCompatActivity() {
 
         colorRecognitionBT.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.CAMERA),
-                        MY_PERMISSION_CAMERA)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.CAMERA),
+                    MY_PERMISSION_CAMERA
+                )
             } else {
+
                 startActivity(Intent(this, ColorRecognitionActivity::class.java))
+
+            }
+        }
+
+        mapBT.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    MY_PERMISSION_LOCATION
+                )
+            } else {
+                startActivity(Intent(this, MapActivity::class.java))
             }
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         when (requestCode) {
             MY_PERMISSION_CAMERA -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     startActivity(Intent(this, ColorRecognitionActivity::class.java))
+            }
+            MY_PERMISSION_LOCATION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    startActivity(Intent(this, MapActivity::class.java))
             }
         }
     }
 
     companion object {
         const val MY_PERMISSION_CAMERA = 123
+        const val MY_PERMISSION_LOCATION = 124
     }
 }
 
