@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.CAMERA),
-                    MY_PERMISSION_CAMERA
+                    MY_PERMISSION_CAMERA_COLOR
                 )
             } else {
 
@@ -60,6 +60,20 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, MapActivity::class.java))
             }
         }
+
+        VrBT.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.CAMERA),
+                    MY_PERMISSION_CAMERA_VR
+                )
+            } else {
+                startActivity(Intent(this, VrActivity::class.java))
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -68,9 +82,13 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         when (requestCode) {
-            MY_PERMISSION_CAMERA -> {
+            MY_PERMISSION_CAMERA_COLOR -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     startActivity(Intent(this, ColorRecognitionActivity::class.java))
+            }
+            MY_PERMISSION_CAMERA_VR -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    startActivity(Intent(this, VrActivity::class.java))
             }
             MY_PERMISSION_LOCATION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
@@ -80,7 +98,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val MY_PERMISSION_CAMERA = 123
+        const val MY_PERMISSION_CAMERA_COLOR = 123
+        const val MY_PERMISSION_CAMERA_VR = 125
         const val MY_PERMISSION_LOCATION = 124
     }
 }
